@@ -11,28 +11,21 @@ class Countdown extends Component {
     this.updateTimer = this.updateTimer.bind(this);
     this.formattedTime = this.formattedTime.bind(this);
 
-    //moment.updateLocale('en', {
-      //relativeTime: {
-        //future: "In %s seconds",
-      //}
-    //});
-
     this.state = {
-      countdown: moment.duration(moment(),moment(this.props.time)).asSeconds(),
+      countdown: moment(this.props.time).unix() - moment().unix(),
     }
     setInterval(this.updateTimer, 1000);
   }
 
   updateTimer() {
     this.setState({
-      countdown: this.state.countdown - 1,
-      //countdown: moment.duration(this.state.countdown - 1000).milliseconds(),
+      countdown: moment(this.props.time).unix() - moment().unix(),
     });
   }
 
   formattedTime(countdown) {
-    return countdown;
-    //return moment(countdown).format(COUNTDOWN_FORMAT);
+    var duration = moment.duration(countdown, 'seconds');
+    return `${duration.days()} Days, ${duration.hours()}:${duration.minutes()}:${duration.seconds()}`;
   }
 
   render() {
