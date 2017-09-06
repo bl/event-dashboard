@@ -40,10 +40,10 @@ class Dashboard extends Component {
             self: true
           },
           start: {
-            dateTime: "2016-04-29T11:00:00-04:00"
+            dateTime: "2018-04-29T11:00:00-04:00"
           },
           end: {
-            dateTime: "2016-04-29T12:30:00-04:00"
+            dateTime: "2018-04-29T12:30:00-04:00"
           },
           iCalUID: "example",
           sequence: 0,
@@ -71,10 +71,10 @@ class Dashboard extends Component {
             self: true
           },
           start: {
-            dateTime: "2016-04-25T14:00:00-04:00"
+            dateTime: "2018-04-25T14:00:00-04:00"
           },
           end: {
-            dateTime: "2016-04-25T15:00:00-04:00"
+            dateTime: "2018-04-25T15:00:00-04:00"
           },
           iCalUID: "example",
           sequence: 1,
@@ -102,10 +102,10 @@ class Dashboard extends Component {
             self: true
           },
           start: {
-            dateTime: "2016-04-28T11:00:00-04:00"
+            dateTime: "2018-04-28T11:00:00-04:00"
           },
           end: {
-            dateTime: "2016-04-28T13:00:00-04:00"
+            dateTime: "2018-04-28T13:00:00-04:00"
           },
           iCalUID: "example",
           sequence: 0,
