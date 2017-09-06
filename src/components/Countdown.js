@@ -3,7 +3,7 @@ import './countdown.css';
 
 import moment from 'moment';
 
-const COUNTDOWN_FORMAT = 'hh:mm A';
+const COUNTDOWN_FORMAT = 'YYYY MM DD hh:mm:ss A';
 
 class Countdown extends Component {
   constructor(props) {
@@ -12,19 +12,20 @@ class Countdown extends Component {
     this.formattedTime = this.formattedTime.bind(this);
 
     this.state = {
-      countdown: this.props.time,
+      countdown: moment(this.props.time).unix() - moment().unix(),
     }
     setInterval(this.updateTimer, 1000);
   }
 
   updateTimer() {
     this.setState({
-      countdown: this.state.countdown,
+      countdown: moment(this.props.time).unix() - moment().unix(),
     });
   }
 
-  formattedTime(timeString) {
-    return moment(timeString).format(COUNTDOWN_FORMAT);
+  formattedTime(countdown) {
+    var duration = moment.duration(countdown, 'seconds');
+    return `${duration.days()} Days, ${duration.hours()}:${duration.minutes()}:${duration.seconds()}`;
   }
 
   render() {
