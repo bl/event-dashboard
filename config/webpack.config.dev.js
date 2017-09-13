@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const autoprefixer = require('autoprefixer');
 const path = require('path');
 const webpack = require('webpack');
@@ -11,6 +12,29 @@ const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const getClientEnvironment = require('./env');
 const paths = require('./paths');
+
+const nodeModules = {};
+// These should not be externals as they're polyfilled in `./polyfills`
+const FilteredModules = ['whatwg-fetch', 'object-assign'];
+const FilteredDirectories = ['.bin'];
+
+var externalModules = Object.keys(require(paths.appPackageJson).dependencies)
+externalModules = externalModules.concat(
+  fs.readdirSync('node_modules')
+    .filter(file => [FilteredDirectories].indexOf(file) === -1)
+);
+
+externalModules
+  .filter(mod => FilteredModules.indexOf(mod) === -1)
+  .filter(mod => !/^react/.test(mod))
+  .forEach(mod => {
+    nodeModules[mod] = {
+      commonjs: mod,
+    };
+  });
+
+console.log(nodeModules);
+//console.log(fs.readdirSync('node_modules').length);
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // In development, we always serve from the root. This makes config easier.
@@ -26,6 +50,9 @@ const env = getClientEnvironment(publicUrl);
 // It is focused on developer experience and fast rebuilds.
 // The production configuration is different and lives in a separate file.
 module.exports = {
+  externals: nodeModules,
+  // Target 'node' as we're now building on Node + Koa
+  target: 'node',
   // You may want 'eval' instead if you prefer to see the compiled output in DevTools.
   // See the discussion in https://github.com/facebookincubator/create-react-app/issues/343.
   devtool: 'cheap-module-source-map',
