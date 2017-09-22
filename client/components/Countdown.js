@@ -10,17 +10,25 @@ class Countdown extends Component {
     super(props);
     this.updateTimer = this.updateTimer.bind(this);
     this.formattedTime = this.formattedTime.bind(this);
+    this.secondsUntilTime = this.secondsUntilTime.bind(this);
 
     this.state = {
-      countdown: moment(this.props.time).unix() - moment().unix(),
+      countdown: this.secondsUntilTime(this.props.time),
     }
+  }
+
+  componentDidMount() {
     setInterval(this.updateTimer, 1000);
   }
 
   updateTimer() {
     this.setState({
-      countdown: moment(this.props.time).unix() - moment().unix(),
+      countdown: this.secondsUntilTime(this.props.time),
     });
+  }
+
+  secondsUntilTime(endTime) {
+    return moment(endTime).unix() - moment().unix();
   }
 
   formattedTime(countdown) {

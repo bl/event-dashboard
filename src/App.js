@@ -1,21 +1,26 @@
-import React, { Component } from 'react';
-import './App.css';
+var path = require('path');
+var express = require('express');
+var exphbs  = require('express-handlebars');
+var React = require('react');
+var ReactDOMServer = require('react-dom/server');
+var app = express();
+var ReactApp = React.createFactory(require('../client/App.js').default);
 
-import {Helmet} from 'react-helmet';
+// configure view engine
+app.engine('.hbs', exphbs({extname: '.hbs'}));
+app.set('view engine', '.hbs');
 
-import Dashboard from './components/Dashboard';
+// use public as static assets directory
+app.use(express.static('public'));
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <Helmet>
-          <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" />
-        </Helmet>
-        <Dashboard />
-      </div>
-    );
-  }
-}
+app.get('/', (req, res) => {
+  var markup = ReactDOMServer.renderToString(ReactApp());
 
-export default App;
+  res.render('index', {
+    markup: markup,
+  });
+});
+
+app.listen(3000, () => {
+  console.log('App is running on 3000');
+});
