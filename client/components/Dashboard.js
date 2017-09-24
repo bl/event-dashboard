@@ -4,9 +4,32 @@ import './dashboard.css';
 import EventList from './EventList';
 import DisplayEvent from './DisplayEvent'
 
+
+function Modal(props) {
+  return (
+    <div id={props.id} className='modal fade' tabindex="-1" role="dialog" aria-labelledby="`example-${props.id}`">
+      <div className="modal-dialog" role="document">
+      </div>
+    </div>
+  );
+}
+
+function OAuthModal(props) {
+  const authUrl = props.oauth ? props.oauth : null;
+  if (!authUrl) {
+    return null;
+  }
+
+  const id = 'oauthModal';
+  const title = 'Authorization required';
+  const message = `This application requires your authorization to display calendar events. Click the link below:`;
+  return <Modal id={id} title={title} message={message}/>;
+}
+
+
 class Dashboard extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     // TODO: abstract this into Calendar component that pulls from Google Calendar
     this.state = {
       calendar: {
@@ -121,6 +144,9 @@ class Dashboard extends Component {
   render() {
     return (
       <div className="Dashboard container-fluid">
+        <OAuthModal
+          oauth = {this.props.oauth}
+        />
         <div className="row">
           <div className="events col-lg-4">
             <EventList

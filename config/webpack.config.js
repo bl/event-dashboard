@@ -17,7 +17,10 @@ var client = {
           loader: 'babel-loader',
           options: {
             babelrc: false,
-            presets: ['es2015', 'react']
+            presets: ['es2015', 'react'],
+            plugins: [
+              require('babel-plugin-transform-object-rest-spread')
+            ]
           }
         }
       },
@@ -29,7 +32,7 @@ var client = {
         ]
       }
     ]
-  }
+  },
 };
 
 var server = {
@@ -48,7 +51,10 @@ var server = {
           loader: 'babel-loader',
           options: {
             babelrc: false,
-            presets: ['es2015', 'react']
+            presets: ['es2015', 'react'],
+            plugins: [
+              require('babel-plugin-transform-object-rest-spread')
+            ]
           }
         }
       },
