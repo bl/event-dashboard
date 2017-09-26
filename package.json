@@ -10,8 +10,7 @@
     "node-jsx": "^0.13.3",
     "react": "^15.6.1",
     "react-bootstrap": "^0.31.3",
-    "react-dom": "^15.6.1",
-    "react-helmet": "^5.2.0"
+    "react-dom": "^15.6.1"
   },
   "scripts": {
     "start": "npm run build && node ./build/server.js",

@@ -6,24 +6,52 @@ import DisplayEvent from './DisplayEvent'
 
 
 function Modal(props) {
+  const labelledBy = `${props.id}Label`;
+  const dataTarget = `#${props.id}`;
   return (
-    <div id={props.id} className='modal fade' tabindex="-1" role="dialog" aria-labelledby="`example-${props.id}`">
-      <div className="modal-dialog" role="document">
+    <div className="ModalWrapper">
+      <div id={props.id} className="modal fade" tabIndex="-1" role="dialog" aria-labelledby={labelledBy} aria-hidden="true">
+        <div className="modal-dialog" role="document">
+          <div className="modal-content" >
+            <div className="modal-header">
+              <h5 className="modal-title" id={labelledBy}>{props.title}</h5>
+              <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div className="modal-body">{props.message}</div>
+            <div className="modal-footer">{props.footer}</div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function OAuthModal(props) {
-  const authUrl = props.oauth ? props.oauth : null;
-  if (!authUrl) {
-    return null;
+class OAuthModal extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      id: 'oauthModal',
+      title: 'Authorization required',
+      message: 'This application requires your authorization to display calendar events.',
+      authUrl: this.props.oauth ? this.props.oauth.authUrl : null,
+    };
   }
 
-  const id = 'oauthModal';
-  const title = 'Authorization required';
-  const message = `This application requires your authorization to display calendar events. Click the link below:`;
-  return <Modal id={id} title={title} message={message}/>;
+  componentDidMount() {
+    // after rendering, perform any client-side rendering
+    $(`#${this.state.id}`).modal('show');
+  }
+
+  render() {
+    if (!this.state.authUrl) {
+      return null;
+    }
+
+    const footer = <a href={this.state.authUrl} className="btn btn-primary" role="button">Authorize App</a>;
+    return <Modal id={this.state.id} title={this.state.title} message={this.state.message} footer={footer}/>;
+  }
 }
 
 
