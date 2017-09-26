@@ -40,6 +40,7 @@ app.get('/', (req, res) => {
   var markup = ReactDOMServer.renderToString(ReactApp(args));
 
   res.render('index', {
+    initParams: JSON.stringify(args),
     markup: markup,
   });
 });

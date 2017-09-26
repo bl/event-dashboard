@@ -5,5 +5,7 @@ import App from './App.js';
 // client-side entry point used to load app and overrite server rendered
 // "root" element
 window.onload = () => {
-  render(<App />, document.getElementById('root'));
+  // retrieve client init params
+  let init = JSON.parse(document.getElementById('initParams').textContent);
+  render(<App {...init}/>, document.getElementById('root'));
 };
