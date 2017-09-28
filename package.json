@@ -3,18 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "connect-pg-simple": "^4.2.1",
     "express": "^4.15.4",
     "express-handlebars": "^3.0.0",
+    "express-session": "^1.15.6",
     "googleapis": "^22.1.0",
     "moment": "^2.18.1",
     "node-jsx": "^0.13.3",
+    "pg": "^7.3.0",
     "react": "^15.6.1",
     "react-bootstrap": "^0.31.3",
     "react-dom": "^15.6.1"
   },
   "scripts": {
     "start": "npm run build && node ./build/server.js",
-    "build": "webpack --config config/webpack.config.js"
+    "build": "webpack --config config/webpack.config.js",
+    "db:init": "pg_ctl -D /usr/local/pgsql/data initdb",
+    "db:start": "pg_ctl start -l db/logfile -D /usr/local/var/postgres",
+    "db:stop": "pg_ctl stop -D /usr/local/var/postgres"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

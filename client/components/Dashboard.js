@@ -5,61 +5,90 @@ import EventList from './EventList';
 import DisplayEvent from './DisplayEvent'
 
 
-function Modal(props) {
-  const labelledBy = `${props.id}Label`;
-  const dataTarget = `#${props.id}`;
-  return (
-    <div className="ModalWrapper">
-      <div id={props.id} className="modal fade" tabIndex="-1" role="dialog" aria-labelledby={labelledBy} aria-hidden="true">
-        <div className="modal-dialog" role="document">
-          <div className="modal-content" >
-            <div className="modal-header">
-              <h5 className="modal-title" id={labelledBy}>{props.title}</h5>
-              <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div className="modal-body">{props.message}</div>
-            <div className="modal-footer">{props.footer}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-class OAuthModal extends Component {
+class Modal extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      id: 'oauthModal',
-      title: 'Authorization required',
-      message: 'This application requires your authorization to display calendar events.',
-      authUrl: this.props.oauth ? this.props.oauth.authUrl : null,
-    };
   }
 
   componentDidMount() {
     // after rendering, perform any client-side rendering
-    $(`#${this.state.id}`).modal('show');
+    $(`#${this.props.id}`).modal('show');
   }
 
   render() {
-    if (!this.state.authUrl) {
-      return null;
-    }
-
-    const footer = <a href={this.state.authUrl} className="btn btn-primary" role="button">Authorize App</a>;
-    return <Modal id={this.state.id} title={this.state.title} message={this.state.message} footer={footer}/>;
+    const labelledBy = `${this.props.id}Label`;
+    const dataTarget = `#${this.props.id}`;
+    const footer = this.props.footer ? this.props.footer
+      : <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>;
+    return (
+      <div className="ModalWrapper">
+        <div id={this.props.id} className="modal fade" tabIndex="-1" role="dialog" aria-labelledby={labelledBy} aria-hidden="true">
+          <div className="modal-dialog" role="document">
+            <div className="modal-content" >
+              <div className="modal-header">
+                <h5 className="modal-title" id={labelledBy}>{this.props.title}</h5>
+                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">{this.props.message}</div>
+              <div className="modal-footer">{this.props.footer}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
+}
+
+function CalendarSelectionModal(props) {
+  if (!props.calendars) {
+    return null;
+  }
+
+  let params = {
+    id: 'calendarSelectionModal',
+    title: 'Select Calendar',
+    message: 'Select one of the modals below'
+  };
+
+  return <Modal id={params.id} title={params.title} message={params.message}/>;
+}
+
+function ErrorModal(props) {
+  if (!this.props.error) {
+    return null;
+  }
+
+  let params = {
+    id: 'errorMOdal',
+    title: 'Error',
+    message: `There was an error: ${props.error}`,
+  };
+
+  return <Modal id={params.id} title={params.title} message={params.message}/>;
+}
+
+function OAuthModal(props) {
+  let params = {
+    id: 'oauthModal',
+    title: 'Authorization required',
+    message: 'This application requires your authorization to display calendar events.',
+    authUrl: props.oauth ? props.oauth.authUrl : null,
+  }
+
+  const footer = <a href={params.authUrl} className="btn btn-primary" role="button">Authorize App</a>;
+  return <Modal id={params.id} title={params.title} message={params.message} footer={footer}/>;
 }
 
 
 class Dashboard extends Component {
   constructor(props) {
     super(props);
+    this.renderNotices = this.renderNotices.bind(this);
     // TODO: abstract this into Calendar component that pulls from Google Calendar
     this.state = {
+      authUrl: props.oauth ? props.oauth.authUrl : null,
       calendar: {
         kind: "calendar#events",
         etag: "\"cal-1\"",
@@ -169,12 +198,24 @@ class Dashboard extends Component {
     };
   }
 
+  renderNotices() {
+    if (this.props.error) {
+      return <ErrorModal oauth={this.props.oauth} />;
+    }
+
+    if (this.props.calendarList) {
+      return <CalendarSelectionModal calendars={this.props.calendarList} />;
+    }
+
+    if (this.state.authUrl) {
+      return <OAuthModal oauth={this.props.oauth} />;
+    }
+  }
+
   render() {
     return (
       <div className="Dashboard container-fluid">
-        <OAuthModal
-          oauth = {this.props.oauth}
-        />
+      {this.renderNotices()}
         <div className="row">
           <div className="events col-lg-4">
             <EventList

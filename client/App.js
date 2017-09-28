@@ -12,7 +12,7 @@ class App extends Component {
     return (
       <div className="App">
         <Dashboard
-          oauth = {this.props.oauth}
+          {...this.props}
         />
       </div>
     );
