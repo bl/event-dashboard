@@ -10,9 +10,11 @@ router.get('/callback',(req, res, next) => {
     .catch((err) => {
       return next(err);
     })
-    .then(() => {
+    .then((tokens) => {
       // attribute set to save session on client-side
       req.session.tokenSaved = true;
+      //  set tokens for current session
+      oauth.setCredentialsGlobally(tokens);
     })
   // return to root page on successful auth
     .then(() => res.redirect('/'));
@@ -35,7 +37,7 @@ function storeAccessCredentials(code, sessionId) {
     });
   })
     .then((tokenObject) => {
-      // store access tokens in db
+      // store access token in db
       let {expiry_date, token_type, ...tokens} = tokenObject;
       let params = {
         id: sessionId,
@@ -44,8 +46,7 @@ function storeAccessCredentials(code, sessionId) {
         tokens: tokens,
       };
       db.setOauthCredentials(params);
-      //  set tokens for current session
-      oauth.setCredentialsGlobally(tokens);
+      return tokens;
     });
 }
 
