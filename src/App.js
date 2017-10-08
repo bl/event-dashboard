@@ -48,7 +48,6 @@ app.use(express.static('public'));
 
 // set gapi access tokens from DB (if present)
 app.use(function(req, res, next) {
-  console.log(req.session.id);
   if (!req.session.tokenSaved) {
     return next();
   }
