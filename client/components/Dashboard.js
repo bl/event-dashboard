@@ -41,15 +41,30 @@ class Modal extends Component {
   }
 }
 
+function CalendarList(props) {
+  let calendarEntries = props.calendars.map((calendar) => {
+    return <button type="button" className="list-group-item list-group-item-action" key={calendar.id}>{calendar.summary}</button>;
+  });
+
+  return <div className="list-group">{calendarEntries}</div>;
+}
+
 function CalendarSelectionModal(props) {
   if (!props.calendars) {
     return null;
   }
 
+  var message = (
+    <div>
+      <p>Select one of the calendars below</p>
+      <CalendarList calendars={props.calendars} />
+    </div>
+  );
+
   let params = {
     id: 'calendarSelectionModal',
     title: 'Select Calendar',
-    message: 'Select one of the modals below'
+    message: message
   };
 
   return <Modal id={params.id} title={params.title} message={params.message}/>;

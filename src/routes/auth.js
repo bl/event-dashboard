@@ -1,18 +1,24 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const db = require('../../db/db');
 
 var oauth = require('../oauthService');
 
 router.get('/callback',(req, res, next) => {
   // add credentials to DB
   storeAccessCredentials(req.query.code, req.session.id)
-  // return to root page on successful auth
     .catch((err) => {
       return next(err);
     })
+    .then(() => {
+      // attribute set to save session on client-side
+      req.session.tokenSaved = true;
+    })
+  // return to root page on successful auth
     .then(() => res.redirect('/'));
 });
 
+// TODO: test extensively
 function storeAccessCredentials(code, sessionId) {
   if (!code) {
     // TODO: verify that this gets caught in error handler, and raises 500
@@ -28,13 +34,18 @@ function storeAccessCredentials(code, sessionId) {
       resolve(tokens);
     });
   })
-    .then((tokens) => {
-      oauth.client.setCredentials(tokens);
-
-      // set oauthClient above as global auth
-      oauth.google.options({
-        auth: oauth.client,
-      });
+    .then((tokenObject) => {
+      // store access tokens in db
+      let {expiry_date, token_type, ...tokens} = tokenObject;
+      let params = {
+        id: sessionId,
+        expiry_date: new Date(expiry_date),
+        token_type: token_type,
+        tokens: tokens,
+      };
+      db.setOauthCredentials(params);
+      //  set tokens for current session
+      oauth.setCredentialsGlobally(tokens);
     });
 }
 

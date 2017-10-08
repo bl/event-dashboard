@@ -12,6 +12,9 @@
 # ignore webpack built client-side app
 /public/javascripts/bundle.js
 
+# db misc
+/db/logfile
+
 # environment variables
 .env
 

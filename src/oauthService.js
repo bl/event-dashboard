@@ -17,8 +17,18 @@ function getAuthUrl() {
   });
 }
 
+function setCredentialsGlobally(tokens) {
+  oauthClient.setCredentials(tokens);
+
+  // set oauthClient above as global auth
+  google.options({
+    auth: oauthClient,
+  });
+}
+
 module.exports = {
   google: google,
   client: oauthClient,
   getAuthUrl: getAuthUrl,
+  setCredentialsGlobally: setCredentialsGlobally,
 };

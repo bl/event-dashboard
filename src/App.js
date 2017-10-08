@@ -8,9 +8,8 @@ var app = express();
 var ReactApp = React.createFactory(require('../client/App.js').default);
 
 // db based modules
-const pg = require('pg');
+const db = require('../db/db');
 const pgSession = require('connect-pg-simple')(session);
-//var db = require('../db/db');
 
 // routes
 var auth = require('./routes/auth');
@@ -23,17 +22,14 @@ var calendar = require('./calendarService');
 app.engine('.hbs', exphbs({extname: '.hbs'}));
 app.set('view engine', '.hbs');
 
-var pgPool = pg.Pool({
-  database: 'eventdb'
-});
-
 // configure sessions
 var sess = {
   store: new pgSession({
-    pool: pgPool,
+    pool: db.pool,
   }),
   secret: process.env.SESSION_SECRET,
   resave: false,
+  // don't save session & sessionId until changes have been applied
   saveUninitialized: false,
   cookie: {
     secure: false,
@@ -42,7 +38,6 @@ var sess = {
 }
 
 if (app.get('env') === 'production') {
-  app.set('trust proxy', 1) // trust first proxy
   sess.cookie.secure = true // serve secure cookies
 }
 
@@ -51,12 +46,23 @@ app.use(session(sess));
 // use public as static assets directory
 app.use(express.static('public'));
 
+// set gapi access tokens from DB (if present)
+app.use(function(req, res, next) {
+  console.log(req.session.id);
+  if (!req.session.tokenSaved) {
+    return next();
+  }
+  db.getOauthCredentials({id: req.session.id})
+    .then((accessTokens) => {
+      oauth.setCredentialsGlobally(accessTokens);
+      next();
+    });
+});
+
 // auth API endpoint
 app.use('/auth', auth);
 
 app.get('/', (req, res) => {
-  //var args = {};
-
   // retrieve calendar list
   calendar.calendarList()
     .then((res) => {
@@ -82,26 +88,25 @@ app.get('/', (req, res) => {
 });
 
 // error handler
-//app.use(function(err, req, res, next) {
-  //console.log('error hit');
-  //// set locals, only providing error in development
-  //res.locals.message = err.message;
-  //res.locals.error = req.app.get('env') === 'development' ? err : {};
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  //// render the error page
-  //res.status(err.status || 500);
+  // render the error page
+  res.status(err.status || 500);
 
-  //let args = {
-    //error: err
-  //};
-  //var markup = ReactDOMServer.renderToString(ReactApp(args));
+  let args = {
+    error: err
+  };
+  var markup = ReactDOMServer.renderToString(ReactApp(args));
 
-  //// TODO: remove duplicate render somehow
-  //res.render('index', {
-    //initParams: JSON.stringify(args),
-    //markup: markup,
-  //});
-//});
+  // TODO: remove duplicate render somehow
+  res.render('index', {
+    initParams: JSON.stringify(args),
+    markup: markup,
+  });
+});
 
 
 app.listen(3000, () => {
