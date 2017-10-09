@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import './dashboard.css';
 
 import EventList from './EventList';
-import DisplayEvent from './DisplayEvent'
+import DisplayEvent from './DisplayEvent';
 
+import CalendarService from '../services/CalendarService';
 
 class Modal extends Component {
   constructor(props) {
@@ -43,7 +44,11 @@ class Modal extends Component {
 
 function CalendarList(props) {
   let calendarEntries = props.calendars.map((calendar) => {
-    return <button type="button" className="list-group-item list-group-item-action" key={calendar.id}>{calendar.summary}</button>;
+    let buttonOnClick = () => {
+      props.onClick(calendar.id);
+    };
+
+    return <button type="button" className="list-group-item list-group-item-action" data-dismiss="modal" key={calendar.id} onClick={buttonOnClick}>{calendar.summary}</button>;
   });
 
   return <div className="list-group">{calendarEntries}</div>;
@@ -57,7 +62,7 @@ function CalendarSelectionModal(props) {
   var message = (
     <div>
       <p>Select one of the calendars below</p>
-      <CalendarList calendars={props.calendars} />
+      <CalendarList calendars={props.calendars} onClick={props.onClick} />
     </div>
   );
 
@@ -71,14 +76,14 @@ function CalendarSelectionModal(props) {
 }
 
 function ErrorModal(props) {
-  if (!this.props.error) {
+  if (!props.error) {
     return null;
   }
 
   let params = {
     id: 'errorMOdal',
-    title: 'Error',
-    message: `There was an error: ${props.error}`,
+    title: props.message,
+    message: props.error,
   };
 
   return <Modal id={params.id} title={params.title} message={params.message}/>;
@@ -89,10 +94,9 @@ function OAuthModal(props) {
     id: 'oauthModal',
     title: 'Authorization required',
     message: 'This application requires your authorization to display calendar events.',
-    authUrl: props.oauth ? props.oauth.authUrl : null,
   }
 
-  const footer = <a href={params.authUrl} className="btn btn-primary" role="button">Authorize App</a>;
+  const footer = <a href={props.authUrl} className="btn btn-primary" role="button">Authorize App</a>;
   return <Modal id={params.id} title={params.title} message={params.message} footer={footer}/>;
 }
 
@@ -101,8 +105,11 @@ class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.renderNotices = this.renderNotices.bind(this);
+    this.calendarListHandleClick = this.calendarListHandleClick.bind(this);
+
     // TODO: abstract this into Calendar component that pulls from Google Calendar
     this.state = {
+      error: props.error,
       authUrl: props.oauth ? props.oauth.authUrl : null,
       calendar: {
         kind: "calendar#events",
@@ -213,17 +220,27 @@ class Dashboard extends Component {
     };
   }
 
+  calendarListHandleClick(calendarId) {
+    CalendarService.events(calendarId)
+      .then((events) => {
+        this.setState({calendar: events});
+      })
+      .fail((error) => {
+        this.setState(error.responseJSON);
+      });
+  }
+
   renderNotices() {
-    if (this.props.error) {
-      return <ErrorModal oauth={this.props.oauth} />;
+    if (this.state.error) {
+      return <ErrorModal {...this.state.error} />;
     }
 
     if (this.props.calendarList) {
-      return <CalendarSelectionModal calendars={this.props.calendarList} />;
+      return <CalendarSelectionModal calendars={this.props.calendarList} onClick={this.calendarListHandleClick} />;
     }
 
     if (this.state.authUrl) {
-      return <OAuthModal oauth={this.props.oauth} />;
+      return <OAuthModal authUrl={this.state.authUrl} />;
     }
   }
 

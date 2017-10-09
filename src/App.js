@@ -13,10 +13,11 @@ const pgSession = require('connect-pg-simple')(session);
 
 // routes
 var auth = require('./routes/auth');
+var api = require('./routes/apiRoute');
 
 // services
 var oauth = require('./oauthService');
-var calendar = require('./calendarService');
+var calendarService = require('./calendarService');
 
 // configure view engine
 app.engine('.hbs', exphbs({extname: '.hbs'}));
@@ -47,7 +48,8 @@ app.use(session(sess));
 app.use(express.static('public'));
 
 // set gapi access tokens from DB (if present)
-app.use(function(req, res, next) {
+// TODO: refresh token when past expiration point
+app.use((req, res, next) => {
   if (!req.session.tokenSaved) {
     return next();
   }
@@ -58,12 +60,13 @@ app.use(function(req, res, next) {
     });
 });
 
-// auth API endpoint
+// register API endpoints
 app.use('/auth', auth);
+app.use('/api', api);
 
 app.get('/', (req, res) => {
   // retrieve calendar list
-  calendar.calendarList()
+  calendarService.calendarList()
     .then((res) => {
       return { calendarList: res.items };
     })
@@ -75,39 +78,45 @@ app.get('/', (req, res) => {
         }
       };
     })
-  // render
+  // finally render
     .then((args) => {
-      let markup = ReactDOMServer.renderToString(ReactApp(args));
-
-      res.render('index', {
-        initParams: JSON.stringify(args),
-        markup: markup,
-      });
+      renderIndex(res, args);
     });
 });
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  // only provide error in development
+  let errorParams = {
+    error: {
+      message: err.message,
+      error: app.get('env') === 'development' ? err.stack : null,
+    }
+  };
 
   // render the error page
   res.status(err.status || 500);
 
-  let args = {
-    error: err
-  };
-  var markup = ReactDOMServer.renderToString(ReactApp(args));
+  // print error locally
+  console.log(err);
 
-  // TODO: remove duplicate render somehow
-  res.render('index', {
-    initParams: JSON.stringify(args),
-    markup: markup,
-  });
+  if (req.accepts('json')) {
+    res.send(errorParams);
+  } else {
+    renderIndex(res, errorParams);
+  }
 });
-
 
 app.listen(3000, () => {
   console.log('App is running on 3000');
 });
+
+const renderIndex = (res, params) => {
+  var markup = ReactDOMServer.renderToString(ReactApp(params));
+
+  // TODO: remove duplicate render somehow
+  res.render('index', {
+    initParams: JSON.stringify(params),
+    markup: markup,
+  });
+}
