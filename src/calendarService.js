@@ -11,8 +11,17 @@ function calendarService() {
     return promiseWrapper(cs.calendars.get, {calendarId: calendarId});
   }
 
-  function events(calendarId) {
-    return promiseWrapper(cs.events.list, {calendarId: calendarId});
+  function events(calendarId, opts) {
+    let defaults = {
+      calendarId: calendarId,
+      maxResults: 100,
+      singleEvents: true,
+      orderBy: 'startTime',
+      timeMin: new Date().toISOString()
+    };
+    opts = Object.assign(defaults, opts);
+
+    return promiseWrapper(cs.events.list, opts);
   }
 
   function promiseWrapper(serviceCall, params) {

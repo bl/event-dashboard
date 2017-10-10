@@ -6,8 +6,14 @@ class CalendarService {
     return $.getJSON(`/api/calendars/${id}`);
   }
 
-  static events(id) {
-    return $.getJSON(`/api/calendars/${id}/events`);
+  static events(id, params = null) {
+    let requestUrl = `/api/calendars/${id}/events`;
+    if (params) {
+      const params = URLSearchParams(params);
+      requestUrl += `?${params}`;
+    }
+
+    return $.getJSON(requestUrl);
   }
 }
 
