@@ -126,8 +126,16 @@ class Dashboard extends Component {
   }
 
   updateSelectedEvent() {
+    const nextSelectedEventIndex = this.nextSelectedEventIndex(this.state.calendar);
+    // do not update state if next event hasn't changed
+    if (this.state.selectedEventIndex == nextSelectedEventIndex) {
+      return;
+    }
+
+    // NOTE: setState is performed async, so same calculation above is performed
+    // with most up to date version of state
     this.setState((prevState, props) => ({
-      selectedEventIndex: this.nextSelectedEvent(prevState.calendar),
+      selectedEventIndex: this.nextSelectedEventIndex(prevState.calendar),
     }));
   }
 
@@ -136,7 +144,7 @@ class Dashboard extends Component {
    *          index  if next event exists in calendar
    *          -1     if no event exists
    * */
-  nextSelectedEvent(calendar) {
+  nextSelectedEventIndex(calendar) {
     if (!calendar) {
       return null;
     }
