@@ -13,6 +13,8 @@ class Dashboard extends Component {
     super(props);
     this.renderNotices = this.renderNotices.bind(this);
     this.calendarListHandleClick = this.calendarListHandleClick.bind(this);
+    this.eventListHandleClick = this.eventListHandleClick.bind(this);
+    this.timelineModeHandleClick = this.timelineModeHandleClick.bind(this);
     this.selectedEvent = this.selectedEvent.bind(this);
     this.updateSelectedEvent = this.updateSelectedEvent.bind(this);
 
@@ -21,6 +23,7 @@ class Dashboard extends Component {
       authUrl: props.oauth ? props.oauth.authUrl : null,
       calendar: null,
       selectedEventIndex: null,
+      timelineMode: true, // automatically switch display events as they occur
     };
   }
 
@@ -34,8 +37,8 @@ class Dashboard extends Component {
 
   updateSelectedEvent() {
     const nextSelectedEventIndex = this.nextSelectedEventIndex(this.state.calendar);
-    // do not update state if next event hasn't changed
-    if (this.state.selectedEventIndex == nextSelectedEventIndex) {
+    // do not update state if not in timeline mode OR next event hasn't changed
+    if (!this.state.timelineMode || this.state.selectedEventIndex == nextSelectedEventIndex) {
       return;
     }
 
@@ -73,6 +76,16 @@ class Dashboard extends Component {
     return this.state.calendar.items[this.state.selectedEventIndex];
   }
 
+  eventListHandleClick(eventId) {
+    const eventIndex = this.state.calendar.items.findIndex(event => event.id == eventId);
+    this.updateSelectedEvent(eventIndex);
+
+    this.setState((prevState, props) => ({
+      timelineMode: false,
+      selectedEventIndex: eventIndex,
+    }));
+  }
+
   calendarListHandleClick(calendarId) {
     CalendarService.events(calendarId)
       .then((events) => {
@@ -81,6 +94,12 @@ class Dashboard extends Component {
       .fail((error) => {
         this.setState(error.responseJSON);
       });
+  }
+
+  timelineModeHandleClick() {
+    this.setState(() => ({
+      timelineMode: true,
+    }));
   }
 
   renderNotices() {
@@ -103,8 +122,12 @@ class Dashboard extends Component {
       {this.renderNotices()}
         <div className="row">
           <div className="events col-lg-4">
+            {!this.state.timelineMode &&
+              <button type="button" className="btn btn-secondary" onClick={this.timelineModeHandleClick}>Timeline Mode</button>
+            }
             <EventList
               events = {this.state.calendar ? this.state.calendar.items : null }
+              onClick = {this.eventListHandleClick}
             />
           </div>
           <div className="selectedEvent col-lg-8">

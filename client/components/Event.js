@@ -21,8 +21,12 @@ class Event extends Component {
   }
 
   render() {
+    let eventOnClick = () => {
+      this.props.onClick(this.props.event.id);
+    };
+
     return(
-      <div className="Event">
+      <div className="Event" onClick={eventOnClick}>
         <h4 className="title text-white">{this.props.event.summary}</h4>
         <p className="date text-white">{this.state.date}</p>
         { this.state.startTime && this.state.endTime &&

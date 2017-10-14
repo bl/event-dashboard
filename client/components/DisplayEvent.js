@@ -11,11 +11,15 @@ const TIME_FORMAT = 'hh:mm A';
 class DisplayEvent extends Component {
   constructor(props) {
     super(props);
-    // TODO: consolidate/perform in parent component if transformation is often performed
-    this.state = {
-      date: moment(this.props.event.start.dateTime).format(DATE_FORMAT),
-      startTime: moment(this.props.event.start.dateTime).format(TIME_FORMAT),
-      endTime: moment(this.props.event.end.dateTime).format(TIME_FORMAT),
+    this.state = this.formattedDate(props.event);
+  }
+
+  // TODO: consolidate/perform in parent component if transformation is often performed
+  formattedDate({start, end}) {
+    return {
+      date: moment(start.dateTime || start.date).format(DATE_FORMAT),
+      startTime: start.dateTime ? moment(start.dateTime).format(TIME_FORMAT) : null,
+      endTime: end.dateTime ? moment(end.dateTime).format(TIME_FORMAT) : null,
     };
   }
 
@@ -26,7 +30,7 @@ class DisplayEvent extends Component {
         <p className="date">{this.state.date}</p>
         <p className="time">{this.state.startTime} - {this.state.endTime}</p>
         <Countdown
-          time = {this.props.event.start.dateTime}
+          time = {this.props.event.start.dateTime || this.props.event.start.date}
         />
       </div>
     );

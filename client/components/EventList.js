@@ -12,6 +12,7 @@ class EventList extends Component {
             <Event
               key = {event.id}
               event = {event}
+              onClick = {this.props.onClick}
             />
           </li>
         )}
