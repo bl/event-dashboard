@@ -3,8 +3,6 @@ import './countdown.css';
 
 import moment from 'moment';
 
-const COUNTDOWN_FORMAT = 'YYYY MM DD hh:mm:ss A';
-
 class Countdown extends Component {
   constructor(props) {
     super(props);

@@ -18,8 +18,10 @@
     "sequelize": "^4.13.5"
   },
   "scripts": {
-    "start": "npm run build && node ./build/server.js",
-    "build": "webpack --config config/webpack.config.js",
+    "start": "node ./build/server.js",
+    "start:dev": "npm run build && node ./build/server.js",
+    "heroku-postbuild": "webpack -p --progress --config config/webpack.config.js",
+    "build:dev": "webpack -d --config config/webpack.config.js",
     "db:build": "node ./db/init.js",
     "db:build:force": "node ./db/init.js --force",
     "db:init": "pg_ctl -D /usr/local/var/postgres initdb",
