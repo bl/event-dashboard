@@ -1,8 +1,7 @@
 var path = require('path');
 var nodeExternals = require('webpack-node-externals');
-var Dotenv = require('dotenv-webpack');
 
-var client = {
+const client = {
   entry: path.join(__dirname, '..', 'client', 'client-entry.js'),
   output: {
     path: path.join(__dirname, '..', 'public', 'javascripts'),
@@ -35,7 +34,7 @@ var client = {
   },
 };
 
-var server = {
+const server = {
   externals: nodeExternals(),
   entry: path.join(__dirname, '..', 'src', 'App.js'),
   output: {
@@ -71,9 +70,7 @@ var server = {
     extensions: ['.js', '.jsx'],
     modules: ['node_modules'],
   },
-  plugins: [
-    new Dotenv()
-  ]
+  plugins: []
 };
 
 module.exports = [client, server];

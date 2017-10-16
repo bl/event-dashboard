@@ -23,6 +23,8 @@ var calendarService = require('./calendarService');
 app.engine('.hbs', exphbs({extname: '.hbs'}));
 app.set('view engine', '.hbs');
 
+app.set('port', (process.env.PORT || 3000));
+
 // configure sessions
 var sess = {
   store: new pgSession({
@@ -107,8 +109,8 @@ app.use(function(err, req, res, next) {
   }
 });
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log('App is running on 3000');
+app.listen(app.get('port'), () => {
+  console.log(`App is running on ${app.get('port')}`);
 });
 
 const renderIndex = (res, params) => {

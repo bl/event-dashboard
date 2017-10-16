@@ -30,9 +30,9 @@
   },
   "scripts": {
     "start": "node ./build/server.js",
-    "start:dev": "npm run build && node ./build/server.js",
-    "heroku-postbuild": "webpack -p --progress --config config/webpack.config.js",
-    "build:dev": "webpack -d --config config/webpack.config.js",
+    "start:dev": "npm run build:dev && node ./build/server.js",
+    "heroku-postbuild": "webpack -p --progress --config config/webpack.prod.config.js",
+    "build:dev": "webpack --config config/webpack.dev.config.js",
     "db:build": "node ./db/init.js",
     "db:build:force": "node ./db/init.js --force",
     "db:init": "pg_ctl -D /usr/local/var/postgres initdb",
